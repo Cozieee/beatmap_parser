@@ -8,6 +8,19 @@ from .geometry import *
 class Curve(ABC):
     def __init__(self, points):
         self.points = points
+    
+    
+    @classmethod
+    def split(self, points):
+        ret = [[points[0]]] if len(points) else []
+        
+        for i in range(1, len(points)):
+            if points_equal(points[i], ret[-1][-1]):
+                ret.append([])
+            ret[-1].append(points[i])
+        
+        return ret
+
 
     @abstractmethod
     def endpoint(self, length):
@@ -23,6 +36,7 @@ class Bezier(Curve):
         self.curve = bezier.Curve(np.asarray(self.points).T, degree)
 
     def endpoint(self, length):
+        
         diff = length - self.curve.length
 
         if diff > 0:
@@ -39,6 +53,7 @@ class Bezier(Curve):
 class Linear(Curve):
 
     def endpoint(self, length):
+        
         x, y, x1, y1 = np.asarray(self.points[:2]).flatten()
         i, j = norm(x1 - x, y1 - y)
 
@@ -48,6 +63,7 @@ class Linear(Curve):
 class PerfectCircle(Curve):
 
     def endpoint(self, length):
+        
         center, radius = define_circle(*self.points)
 
         radians = length / radius

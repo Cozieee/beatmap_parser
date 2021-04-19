@@ -1,5 +1,5 @@
 from .definitions import s_int
-from .curve_types import resolve_curve_type
+from .curve_types import resolve_curve_type, Curve
 from .geometry import points_equal
 
 
@@ -27,13 +27,13 @@ def slider(s, timing_point):
     curve_type, curve_points = curve_data(vals[5])
     repeat_count, px_length = s_int(vals[6]), float(vals[7])
 
-    if not (len(curve_points) and points_equal((x, y), curve_points[0])):
-        curve_points = [(x, y)] + curve_points
+    split_points = Curve.split([(x, y)] + curve_points)
+    points = split_points[-1]
 
-    curve_class = resolve_curve_type(curve_type, curve_points)
+    curve_class = resolve_curve_type(curve_type, points)
 
-    x1, y1 = curve_class(curve_points).endpoint(
-        px_length) if curve_class and len(curve_points) < 100 else curve_points[-1]
+    x1, y1 = curve_class(points).endpoint(
+        px_length) if curve_class and len(points) < 100 else points[-1]
 
     px_per_ms = timing_point[1]
     duration = int(px_length / px_per_ms)
